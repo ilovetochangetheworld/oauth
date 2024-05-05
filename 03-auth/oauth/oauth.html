@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>github OAuth</title>
+    <script src="https://unpkg.com/axios@1.6.8/dist/axios.min.js"></script>
+</head>
+<body>
+    <button id="login">Github Login</button>
+    <script>
+        const el = document.querySelector('#login');
+        el.addEventListener('click', () => {
+            console.log('login')
+            window.open('http://localhost:7001/auth/github/login', '_blank')
+            const interalId = setInterval(() => {
+                console.log('轮询认证状态');
+                if(window.localStorage.getItem('authSuccess')){
+                    console.log('认证成功！');
+                    clearInterval(interalId);
+                    window.localStorage.removeItem('authSuccess');
+                    getUser();
+                }
+            }, 500)
+        });
+
+        async function getUser(){
+            const token = window.localStorage.getItem('token');
+            const res = await axios.get('/auth/github/userinfo', {
+                headers: {
+                    Authorization: "Bearer " + token
+                }
+            });
+            console.log('res', res.data);
+            window.userInfo = res.data;
+        }
+    </script>
+</body>
+</html>
